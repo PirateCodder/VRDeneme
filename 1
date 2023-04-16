@@ -1,0 +1,55 @@
+import PySimpleGUI as sg
+from datetime import datetime
+
+sg.theme('DarkAmber')
+
+devreden_listesi = []
+devralan_listesi = []
+
+gunler = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar']
+
+layout = [[sg.Text('Vardiya Rapor')],
+          [sg.CalendarButton('Tarih Seçin', target='-IN-', key='_DATE_', format='%Y-%m-%d'), sg.Input(key='-IN-', size=(20,1)), sg.Text('', key='-GUN-')],
+          [sg.Text('Vardiya Tipi'), sg.Combo(['A-Tipi', 'C-Tipi'], size=(20, 1), key='-TIP-')],
+          [sg.Text('Devreden Kişiler'), sg.Button('Ekle', key='-DEVREDEN-EKLE-', button_color=('white', '#008B8B')), sg.Button('Çıkar', key='-DEVREDEN-CIKAR-', button_color=('white', '#FF7F50'))],
+          [sg.Input(key='-DEVREDEN-')],
+          [sg.Listbox(values=devreden_listesi, size=(30, 4), key='-DEVREDEN-LISTESI-')],
+          [sg.Text('Devralan Kişiler'), sg.Button('Ekle', key='-DEVRALAN-EKLE-', button_color=('white', '#008B8B')), sg.Button('Çıkar', key='-DEVRALAN-CIKAR-', button_color=('white', '#FF7F50'))],
+          [sg.Input(key='-DEVRALAN-')],
+          [sg.Listbox(values=devralan_listesi, size=(30, 4), key='-DEVRALAN-LISTESI-')],
+          [sg.Button('Çıkış'), sg.Text('', size=(20,1))]]
+
+window = sg.Window('Vardiya Rapor', layout)
+
+while True:
+    event, values = window.read()
+    if event == sg.WINDOW_CLOSED or event == 'Çıkış':
+        break
+    if event == '_DATE_':
+        tarih = values['-IN-']
+        gun = datetime.strptime(tarih, '%Y-%m-%d').weekday()
+        window['-GUN-'].update(gunler[gun])
+    if event == '-DEVREDEN-EKLE-':
+        if len(devreden_listesi) < 4:
+            devreden_listesi.append(values['-DEVREDEN-'])
+            window['-DEVREDEN-LISTESI-'].update(devreden_listesi)
+            window['-DEVREDEN-'].update('')
+        else:
+            sg.popup('Devreden kişi sayısı maksimum 4 olabilir!')
+    if event == '-DEVRALAN-EKLE-':
+        if len(devralan_listesi) < 4:
+            devralan_listesi.append(values['-DEVRALAN-'])
+            window['-DEVRALAN-LISTESI-'].update(devralan_listesi)
+            window['-DEVRALAN-'].update('')
+        else:
+            sg.popup('Devralan kişi sayısı maksimum 4 olabilir!')
+    if event == '-DEVREDEN-CIKAR-':
+        secilen = values['-DEVREDEN-LISTESI-'][0]
+        devreden_listesi.remove(secilen)
+        window['-DEVREDEN-LISTESI-'].update(devreden_listesi)
+    if event == '-DEVRALAN-CIKAR-':
+        secilen = values['-DEVRALAN-LISTESI-'][0]
+        devralan_listesi.remove(secilen)
+        window['-DEVRALAN-LISTESI-'].update(devralan_listesi)
+
+window.close()
